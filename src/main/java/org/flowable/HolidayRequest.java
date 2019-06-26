@@ -1,11 +1,17 @@
 package org.flowable;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RepositoryService;
+import org.flowable.engine.RuntimeService;
 import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
 
 public class HolidayRequest {
 
@@ -27,6 +33,24 @@ public class HolidayRequest {
 				.singleResult();
 		System.out.println("Found process definition: " + processDefinition.getName());
 		
+		Scanner scanner = new Scanner(System.in);
+		
+		System.out.println("Who are you?");
+		String employee = scanner.nextLine();
+		
+		System.out.println("How many holidays do you want to request?");
+		Integer nrOfHolidays = Integer.valueOf(scanner.nextLine());
+		
+		System.out.println("Why do you need them?");
+		String description = scanner.nextLine();
+		
+		RuntimeService runtimeService = processEngine.getRuntimeService();
+		
+		Map<String, Object> variables = new HashMap<String, Object>();
+		variables.put("employee", employee);
+		variables.put("nrOfHolidays", nrOfHolidays);
+		variables.put("description", description);
+		ProcessInstance processInstance = runtimeService.startProcessInstanceByKey("holidayRequest", variables);
 	}
 
 }
