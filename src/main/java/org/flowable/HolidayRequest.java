@@ -5,11 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import org.flowable.engine.HistoryService;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
+import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.impl.cfg.StandaloneProcessEngineConfiguration;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
@@ -74,6 +76,16 @@ public class HolidayRequest {
 		variables.put("approved", approved);
 		taskService.complete(task.getId(), variables);
 		
+		HistoryService historyService = processEngine.getHistoryService();
+		List<HistoricActivityInstance> activities = historyService.createHistoricActivityInstanceQuery()
+				.processInstanceId(processInstance.getId())
+				.finished()
+				.orderByHistoricActivityInstanceEndTime().asc()
+				.list();
+		for(HistoricActivityInstance activity: activities){
+			System.out.println(activity.getActivityId() + " took "
+					+ activity.getDurationInMillis() + " milliseconds");
+		}
 	}
 
 }
